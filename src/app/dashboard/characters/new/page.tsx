@@ -1,7 +1,7 @@
 'use client'
 
 import DashboardLayout from '@/components/DashboardLayout'
-import { supabase } from '@/lib/supabase'
+import supabase from '@/lib/supabase'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 
