@@ -1,5 +1,13 @@
 import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs'
 import { NextResponse } from 'next/server'
+import NextAuth from 'next-auth'
+import { authConfig } from './auth.config'
+
+export const { auth: middleware } = NextAuth(authConfig)
+
+export const config = {
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
+}
 
 export async function middleware(req: any) {
   const res = NextResponse.next()
@@ -17,8 +25,4 @@ export async function middleware(req: any) {
   }
 
   return res
-}
-
-export const config = {
-  matcher: ['/dashboard/:path*'],
 } 

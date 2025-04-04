@@ -1,8 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
+import { useAppContext } from './Providers'
+import { AuthError } from '@supabase/supabase-js'
 
 export default function Auth() {
   const [email, setEmail] = useState('')
@@ -10,6 +11,7 @@ export default function Auth() {
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
   const router = useRouter()
+  const { supabase } = useAppContext()
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -25,7 +27,12 @@ export default function Auth() {
       if (error) throw error
       setMessage('Controlla la tua email per il link di conferma!')
     } catch (error) {
-      setMessage('Errore durante la registrazione')
+      if (error instanceof AuthError) {
+        setMessage(error.message)
+      } else {
+        setMessage('Errore durante la registrazione')
+      }
+      console.error('Errore di registrazione:', error)
     } finally {
       setLoading(false)
     }
@@ -45,7 +52,12 @@ export default function Auth() {
       if (error) throw error
       router.push('/dashboard')
     } catch (error) {
-      setMessage('Errore durante il login')
+      if (error instanceof AuthError) {
+        setMessage(error.message)
+      } else {
+        setMessage('Errore durante il login')
+      }
+      console.error('Errore di login:', error)
     } finally {
       setLoading(false)
     }
@@ -59,7 +71,7 @@ export default function Auth() {
             Stormbringer PWA
           </h2>
         </div>
-        <form className="mt-8 space-y-6">
+        <form className="mt-8 space-y-6" onSubmit={(e) => e.preventDefault()}>
           <div className="space-y-4 rounded-md shadow-sm">
             <div>
               <label htmlFor="email" className="sr-only">
@@ -99,7 +111,7 @@ export default function Auth() {
 
           <div className="flex space-x-4">
             <button
-              type="submit"
+              type="button"
               onClick={handleSignIn}
               disabled={loading}
               className="group relative flex w-full justify-center rounded-md bg-primary-600 px-3 py-2 text-sm font-semibold text-white hover:bg-primary-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
@@ -107,7 +119,7 @@ export default function Auth() {
               {loading ? 'Caricamento...' : 'Accedi'}
             </button>
             <button
-              type="submit"
+              type="button"
               onClick={handleSignUp}
               disabled={loading}
               className="group relative flex w-full justify-center rounded-md bg-gray-600 px-3 py-2 text-sm font-semibold text-white hover:bg-gray-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600"
