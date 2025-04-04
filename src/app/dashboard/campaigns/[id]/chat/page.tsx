@@ -1,9 +1,10 @@
 'use client'
 
 import DashboardLayout from '@/components/DashboardLayout'
-import supabase from '@/lib/supabase'
+import { createSupabaseClient } from '@/lib/createClient'
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
+import { RealtimePostgresChangesPayload } from '@supabase/supabase-js'
 
 type Message = {
   id: number
@@ -11,6 +12,9 @@ type Message = {
   user_id: string
   user_name: string
   created_at: string
+  users: {
+    name: string
+  }
 }
 
 export default function CampaignChatPage() {
@@ -19,6 +23,7 @@ export default function CampaignChatPage() {
   const [newMessage, setNewMessage] = useState('')
   const [loading, setLoading] = useState(true)
   const [user, setUser] = useState<any>(null)
+  const supabase = createSupabaseClient()
 
   useEffect(() => {
     fetchUser()
@@ -41,7 +46,7 @@ export default function CampaignChatPage() {
 
       if (error) throw error
       setMessages(
-        data.map((msg) => ({
+        data.map((msg: Message & { users: { name: string } }) => ({
           ...msg,
           user_name: msg.users.name,
         }))
@@ -64,7 +69,7 @@ export default function CampaignChatPage() {
           table: 'messages',
           filter: `campaign_id=eq.${params.id}`,
         },
-        (payload) => {
+        (payload: RealtimePostgresChangesPayload<Message>) => {
           const newMessage = payload.new as Message
           setMessages((prev) => [...prev, newMessage])
         }

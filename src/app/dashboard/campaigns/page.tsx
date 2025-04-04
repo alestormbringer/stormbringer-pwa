@@ -1,7 +1,7 @@
 'use client'
 
 import DashboardLayout from '@/components/DashboardLayout'
-import supabase from '@/lib/supabase'
+import { createSupabaseClient } from '@/lib/createClient'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 
@@ -17,6 +17,7 @@ type Campaign = {
 export default function CampaignsPage() {
   const [campaigns, setCampaigns] = useState<Campaign[]>([])
   const [loading, setLoading] = useState(true)
+  const supabase = createSupabaseClient()
 
   useEffect(() => {
     fetchCampaigns()

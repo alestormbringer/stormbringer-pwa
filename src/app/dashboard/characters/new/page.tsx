@@ -1,13 +1,14 @@
 'use client'
 
 import DashboardLayout from '@/components/DashboardLayout'
-import supabase from '@/lib/supabase'
+import { createSupabaseClient } from '@/lib/createClient'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 
 export default function NewCharacterPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
+  const supabase = createSupabaseClient()
   const [formData, setFormData] = useState({
     name: '',
     race: '',

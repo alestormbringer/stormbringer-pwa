@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import supabase from '@/lib/supabase'
+import { createSupabaseClient } from '@/lib/createClient'
 import { useRouter } from 'next/navigation'
 
 const navigation = [
@@ -22,6 +22,7 @@ export default function DashboardLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const pathname = usePathname()
   const router = useRouter()
+  const supabase = createSupabaseClient()
 
   const handleSignOut = async () => {
     await supabase.auth.signOut()

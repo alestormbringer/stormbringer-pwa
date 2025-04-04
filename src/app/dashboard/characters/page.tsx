@@ -1,7 +1,7 @@
 'use client'
 
 import DashboardLayout from '@/components/DashboardLayout'
-import supabase from '@/lib/supabase'
+import { createSupabaseClient } from '@/lib/createClient'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 
@@ -25,6 +25,7 @@ type Character = {
 export default function CharactersPage() {
   const [characters, setCharacters] = useState<Character[]>([])
   const [loading, setLoading] = useState(true)
+  const supabase = createSupabaseClient()
 
   useEffect(() => {
     fetchCharacters()
