@@ -1,3 +1,5 @@
+'use client'
+
 import DashboardLayout from '@/components/DashboardLayout'
 import { supabase } from '@/lib/supabase'
 import { useEffect, useState } from 'react'
