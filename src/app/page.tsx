@@ -1,103 +1,143 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Image from 'next/image';
+import Link from 'next/link';
+
+export default function LandingPage() {
+  const router = useRouter();
+  const [titleOpacity, setTitleOpacity] = useState(0);
+  const [subtitleOpacity, setSubtitleOpacity] = useState(0);
+  const [buttonsOpacity, setButtonsOpacity] = useState(0);
+  
+  // Animazione lenta e progressiva
+  useEffect(() => {
+    // Funzione per incrementare gradualmente l'opacità
+    const animateElement = (
+      setOpacity: React.Dispatch<React.SetStateAction<number>>,
+      startDelay: number,
+      duration: number
+    ) => {
+      let startTime: number | null = null;
+      let animationFrame: number;
+
+      const animate = (timestamp: number) => {
+        if (!startTime) startTime = timestamp;
+        const elapsed = timestamp - startTime;
+        
+        // Calcola il tempo trascorso dall'inizio dell'animazione dopo il ritardo
+        const timeAfterDelay = elapsed - startDelay;
+        
+        if (timeAfterDelay <= 0) {
+          // Non ancora iniziata l'animazione, continua a richiedere fotogrammi
+          animationFrame = requestAnimationFrame(animate);
+          return;
+        }
+        
+        // Calcola l'opacità basata sul tempo trascorso
+        const progress = Math.min(timeAfterDelay / duration, 1);
+        
+        // Funzione di easing per un'animazione più naturale (easeOutQuart)
+        const easedProgress = 1 - Math.pow(1 - progress, 3);
+        
+        setOpacity(easedProgress);
+        
+        if (progress < 1) {
+          animationFrame = requestAnimationFrame(animate);
+        }
+      };
+      
+      animationFrame = requestAnimationFrame(animate);
+      
+      return () => cancelAnimationFrame(animationFrame);
+    };
+
+    // Avvia le animazioni con ritardi differenti e durate più lunghe
+    const titleAnimation = animateElement(setTitleOpacity, 1000, 2000); // 1s ritardo, 2s durata
+    const subtitleAnimation = animateElement(setSubtitleOpacity, 2500, 2000); // 2.5s ritardo, 2s durata
+    const buttonsAnimation = animateElement(setButtonsOpacity, 4000, 2500); // 4s ritardo, 2.5s durata
+
+    return () => {
+      // Pulizia delle animazioni
+      titleAnimation();
+      subtitleAnimation();
+      buttonsAnimation();
+    };
+  }, []);
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div className="relative min-h-screen bg-black flex flex-col items-center justify-between py-16 overflow-hidden">
+      {/* Logo sfumato con effetto dissolvenza sui bordi */}
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="relative w-[700px] h-[700px]">
+          <div className="absolute inset-0 bg-radial-fade"></div>
+          <Image
+            src="/IMG_4969.png"
+            alt="Stormbringer Logo"
+            fill
+            sizes="(max-width: 768px) 80vw, 700px"
+            className="object-contain opacity-60"
+            style={{ filter: 'drop-shadow(0 0 8px rgba(255, 255, 255, 0.3))' }}
+          />
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+      </div>
+      
+      {/* Spazio vuoto in alto per spostare il contenuto in basso */}
+      <div className="flex-grow"></div>
+      
+      {/* Titolo con animazione graduale */}
+      <div className="z-10 text-center px-4 mb-8">
+        <h1 
+          className="text-6xl md:text-8xl font-bold text-yellow-500 mb-4 transform-gpu will-change-transform"
+          style={{ 
+            fontFamily: "var(--font-medievalsharp)",
+            textShadow: "0 0 5px rgba(255, 215, 0, 0.4)",
+            letterSpacing: "4px",
+            opacity: titleOpacity,
+            transform: `scale(${0.9 + (titleOpacity * 0.1)})`,
+            transition: 'transform 2.5s cubic-bezier(0.25, 0.1, 0.25, 1)'
+          }}
         >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+          Stormbringer
+        </h1>
+        <p 
+          className="text-gray-400 italic mt-2 transform-gpu will-change-transform"
+          style={{ 
+            fontFamily: "var(--font-medievalsharp)",
+            opacity: subtitleOpacity,
+            transform: `translateY(${(1 - subtitleOpacity) * 20}px)`,
+            transition: 'transform 2.5s cubic-bezier(0.25, 0.1, 0.25, 1)'
+          }}
         >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+          Dalla Grande Saga di Michael Moorcock
+        </p>
+      </div>
+      
+      {/* Pulsanti con animazione graduale */}
+      <div 
+        className="z-10 mt-4 space-y-4 transform-gpu will-change-transform"
+        style={{
+          opacity: buttonsOpacity,
+          transform: `translateY(${(1 - buttonsOpacity) * 30}px)`,
+          transition: 'transform 3s cubic-bezier(0.19, 1, 0.22, 1)'
+        }}
+      >
+        <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+          <Link
+            href="/login"
+            className="bg-yellow-500 text-white px-8 py-3 rounded-lg hover:bg-yellow-600 transition-colors text-center font-medievalsharp"
+          >
+            Accedi
+          </Link>
+          <Link
+            href="/register"
+            className="bg-gray-800 text-white px-8 py-3 rounded-lg hover:bg-gray-700 transition-colors text-center font-medievalsharp"
+          >
+            Registrati
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }
