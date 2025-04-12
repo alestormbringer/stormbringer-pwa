@@ -88,12 +88,6 @@ export default function ClassesPage() {
     }
   };
 
-  // Funzione per reindirizzare alla pagina di aggiunta classe se non ci sono classi
-  const redirectToAddPage = () => {
-    console.log("Reindirizzamento alla pagina di aggiunta classe...");
-    window.location.href = "/classes/add";
-  };
-
   useEffect(() => {
     fetchClasses();
   }, []);
@@ -184,17 +178,6 @@ export default function ClassesPage() {
           <h1 className="text-4xl font-bold text-yellow-500 mb-4">
             Classi di Stormbringer
           </h1>
-          <div className="flex justify-center space-x-2">
-            <Link 
-              href="/classes/add" 
-              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors flex items-center"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-              Nuova Classe
-            </Link>
-          </div>
         </div>
 
         {error && (
