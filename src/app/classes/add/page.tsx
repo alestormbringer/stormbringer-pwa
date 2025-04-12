@@ -162,6 +162,11 @@ export default function AddClassPage() {
     }
   }, []);
 
+  // Reindirizza immediatamente alla pagina delle classi
+  useEffect(() => {
+    router.push('/classes');
+  }, [router]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setClassData(prev => ({
