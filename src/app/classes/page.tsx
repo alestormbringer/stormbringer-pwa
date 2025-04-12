@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
+import { collection, getDocs } from 'firebase/firestore';
 import { db } from '@/firebase/config';
 import NavBar from '@/components/NavBar';
 import { CharacterClass } from '@/types/gameData';
