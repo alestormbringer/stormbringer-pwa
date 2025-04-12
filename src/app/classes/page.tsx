@@ -9,9 +9,9 @@ import Link from 'next/link';
 
 export default function ClassesPage() {
   const [classes, setClasses] = useState<CharacterClass[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [deleteStatus, setDeleteStatus] = useState<{id: string, isDeleting: boolean} | null>(null);
-  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [firebaseStatus, setFirebaseStatus] = useState('Connessione in corso...');
   const [currentClassVariant, setCurrentClassVariant] = useState<{[key: string]: string}>({
     'Mercante': 'Mercante',
     'Marinaio': 'Marinaio',
@@ -111,7 +111,7 @@ export default function ClassesPage() {
       
       if (classesData.length === 0) {
         console.log("Nessuna classe trovata, carico dati di fallback");
-        setDeleteError("Nessuna classe trovata nel database. Puoi aggiungere nuove classi usando il pulsante 'Nuova Classe'.");
+        setError("Nessuna classe trovata nel database. Puoi aggiungere nuove classi usando il pulsante 'Nuova Classe'.");
         setClasses(getFallbackClasses());
       } else {
         // Ottieni tutte le classi, incluse le varianti
@@ -133,16 +133,16 @@ export default function ClassesPage() {
       
       // Messaggio di errore più specifico per problemi di permessi
       if (error instanceof Error && error.message.includes('permission-denied')) {
-        setDeleteError("Errore di permessi nel database. Vengono mostrate classi di esempio.");
+        setError("Errore di permessi nel database. Vengono mostrate classi di esempio.");
       } else {
-        setDeleteError("Errore nel recupero delle classi: " + (error instanceof Error ? error.message : 'Errore sconosciuto'));
+        setError("Errore nel recupero delle classi: " + (error instanceof Error ? error.message : 'Errore sconosciuto'));
       }
       
       // Dati di fallback in caso di errore
       console.log("Carico dati di fallback a causa dell'errore");
       setClasses(getFallbackClasses());
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -165,29 +165,7 @@ export default function ClassesPage() {
     ] as CharacterClass[];
   };
 
-  const handleDeleteClass = async (id: string, name: string) => {
-    if (!confirm(`Sei sicuro di voler eliminare la classe "${name}"?`)) {
-      return;
-    }
-
-    setDeleteStatus({ id, isDeleting: true });
-    setDeleteError(null);
-
-    try {
-      await deleteDoc(doc(db, 'classes', id));
-      console.log('Classe eliminata con ID:', id);
-      
-      // Aggiorna la lista rimuovendo la classe eliminata
-      setClasses(prev => prev.filter(c => c.id !== id));
-    } catch (error) {
-      console.error('Errore durante l\'eliminazione della classe:', error);
-      setDeleteError(error instanceof Error ? error.message : 'Errore sconosciuto durante l\'eliminazione');
-    } finally {
-      setDeleteStatus(null);
-    }
-  };
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-900">
         <NavBar />
@@ -219,7 +197,7 @@ export default function ClassesPage() {
           </div>
         </div>
 
-        {deleteError && (
+        {error && (
           <div className="mb-6 p-4 bg-red-700 bg-opacity-70 text-white rounded-lg border border-red-500">
             <div className="flex items-center mb-2">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -227,7 +205,7 @@ export default function ClassesPage() {
               </svg>
               <span className="font-bold">Avviso:</span>
             </div>
-            <p>{deleteError}</p>
+            <p>{error}</p>
             <p className="text-sm mt-2 opacity-80">Le classi visualizzate sono dati di esempio e non verranno salvate nel database.</p>
           </div>
         )}
@@ -269,50 +247,15 @@ export default function ClassesPage() {
                     </div>
                     
                     <div className="flex justify-center space-x-2 mb-4">
-                      {!characterClass.id.includes('fallback') ? (
-                        <Link 
-                          href={`/classes/edit/${characterClass.id}`}
-                          className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition-colors flex items-center text-sm"
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                          </svg>
-                          Modifica
-                        </Link>
-                      ) : (
-                        <span 
-                          className="bg-gray-600 text-white px-3 py-1 rounded flex items-center text-sm cursor-not-allowed opacity-70"
-                          title="Questa è una classe di esempio e non può essere modificata"
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                          </svg>
-                          Classe di esempio
-                        </span>
-                      )}
-                      
-                      {!characterClass.id.includes('fallback') ? (
-                        <button 
-                          onClick={() => handleDeleteClass(characterClass.id, characterClass.name)}
-                          disabled={deleteStatus?.id === characterClass.id && deleteStatus.isDeleting}
-                          className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 transition-colors flex items-center text-sm"
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v10M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3" />
-                          </svg>
-                          {deleteStatus?.id === characterClass.id && deleteStatus.isDeleting ? 'Eliminazione...' : 'Elimina'}
-                        </button>
-                      ) : (
-                        <Link 
-                          href="/classes/add"
-                          className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 transition-colors flex items-center text-sm"
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
-                          Crea Reale
-                        </Link>
-                      )}
+                      <span 
+                        className="bg-gray-600 text-white px-3 py-1 rounded flex items-center text-sm cursor-not-allowed opacity-70"
+                        title="La modifica delle classi è disabilitata"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
+                        Modifica disabilitata
+                      </span>
                     </div>
                   </div>
                   
